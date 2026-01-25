@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Courses{% endblock %}
+
+{% block content %}
+    <div class="upload-container">
+        <h1>Upload a New Course</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label>Course Title:</label>
+            <input type="text" name="title" class="form-control" required>
+
+            <label>Description:</label>
+            <textarea name="description" class="form-control" required></textarea>
+
+            <label>YouTube Link:</label>
+            <input type="url" name="video_url" class="form-control" required>
+            <button type="submit" class="btn-upload">Upload Course</button>
+        </form>
+    </div>
+{% endblock %}

@@ -3,5 +3,72 @@
 {% block title %}Course Posts{% endblock %}
 
 {% block content %}
-    <h1> Welcome to post list</h1>
+<header>
+    <h1>Hello {{ user.username }}</h1>
+    <a href="{% url 'users:profile' username=user.username %}">Profile</a>
+    <a href="{% url 'users:logout' %}">Logout</a>
+</header>
+    <div>
+        {% if profile_user.published_courses.all %}
+            <h1>Available Courses</h1>
+        {% else %}
+            <h1>No Courses Available</h1>
+        {% endif %}
+        <div>
+            {% for course in courses %}
+                <div>
+                    <h3>{{ course.publisher.user.username }}</h3>
+                    <h4>{{ course.title }}</h4>
+                    <p>{{ course.description }}</p>
+                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 15px 0; background: #000; border-radius: 8px;">
+                        <iframe 
+                        src="{{ course.replace_youtube_link }}" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen>
+                    </iframe>
+                    </div>
+                    <p><small>published on: <i>{{ course.created_at.date }}</i> </small></p>
+                   {% if user.profile.is_student %}
+                        <button id='btn-save-{{ course.id }}' 
+                                onclick="saveCourse(this, {{ course.id }})"
+                                data-url="{% url 'users:save_course' course_id=course.id %}"
+                                {% if course in user.profile.saved_courses.all %} disabled style="background-color: #28a745; color: white;" {% endif %}
+                                >
+                            {% if course in user.profile.saved_courses.all %}
+                                Course Already Saved
+                            {% else %}
+                                Save Course
+                            {% endif %}
+                        </button>
+                    {% endif %}
+                    <a href="{{ course.video_url }}" target="_blank">Watch Video On YouTube</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        function saveCourse(button, courseId) {
+            const saveurl = button.getAttribute('data-url');
+            fetch(saveurl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    button.disabled = true;
+                    button.innerText = 'Course Already Saved';
+                    button.style.backgroundColor = '#28a745';
+                    button.style.color = 'white';
+                } else {
+                    alert('Error saving course.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        } // <-- Added this missing closing brace
+    </script>
 {% endblock %}

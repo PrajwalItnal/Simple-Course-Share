@@ -6,6 +6,7 @@ from .models import Profile, Courses
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -100,3 +101,38 @@ def course_list(request, username):
         'courses': courses,
         'username': username
     })
+
+
+@login_required
+def save_course(request, course_id):
+    if not request.user.profile.is_student:
+        return JsonResponse({'status': 'error', 'message': 'Not a student'}, status=403)
+
+    course = get_object_or_404(Courses, id=course_id)
+    profile = request.user.profile
+    
+    if course in profile.saved_courses.all():
+        profile.saved_courses.remove(course)
+        action = 'removed'
+    else:
+        profile.saved_courses.add(course)
+        action = 'added'
+        
+    return JsonResponse({'status': 'success', 'action': action})
+
+@login_required
+def unsave_course(request, course_id):
+    profile = request.user.profile
+    course = get_object_or_404(Courses, id=course_id)
+    if not request.user.profile.is_student:
+        if course in Courses.objects.all():
+            course.delete()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Could not unsave course'}, status=500)
+
+    profile.saved_courses.remove(course)
+    if course not in profile.saved_courses.all():
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Could not unsave course'}, status=500)

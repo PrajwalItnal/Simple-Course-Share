@@ -10,4 +10,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('user/upload_course/', views.upload_course, name='upload_course'),
     path('post/<str:username>/', views.course_list, name='course_list'),
+    path('course/<int:course_id>/save/', views.save_course, name='save_course'),
+    path('course/<int:course_id>/unsave/', views.unsave_course, name='unsave_course')
 ]

@@ -3,7 +3,11 @@
 {% block title %}User Profile{% endblock %}
 
 {% block content %}
-
+    <div>
+        <header>
+            <a href="{% url 'users:course_list' username=user.username %}">Return to Course List</a>
+        </header>
+    </div>
     <div>
         <div>
             <h1>Hello {{ profile_user.user.username }}</h1>
@@ -17,10 +21,28 @@
         {% if profile_user.is_student %}
             <div>
                 <h3>My Learning Journey</h3>
-                {% if profile_user.enrolled_courses.all %}
-                    <ul>
-                        {% for course in profile_user.enrolled_courses.all %}
-                            <li>{{ course.title }}</li>
+                {% if profile_user.saved_courses.all %}
+                    <ul id="saved-courses-list">
+                        {% for course in profile_user.saved_courses.all %}
+                            <li id="std-course-id-{{ course.id }}">
+                                <p><strong>{{ course.title }}</strong></p>
+                                <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin: 15px 0; background: #000; border-radius: 8px;">
+                                    <iframe 
+                                        src="{{ course.replace_youtube_link }}" 
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        referrerpolicy="strict-origin-when-cross-origin"
+                                        allowfullscreen>
+                                    </iframe>
+                                </div>
+                                <p>{{ course.description }}</p>
+                                <button 
+                                    onclick="unsaveCourse(this, {{ course.id }})" 
+                                    data-url="{% url 'users:unsave_course' course_id=course.id %}"
+                                    style="background-color: #ff4757; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                                    🗑️ Unsave Course
+                                </button>
+                            </li>
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -41,9 +63,10 @@
             <div>
                 <h2>Published Courses</h2>
                 {% if profile_user.published_courses.all %}
-                    <ul>
+                    <ul id ="published-courses-list">
                         {% for course in profile_user.published_courses.all %}
-                            <li><h4>{{ course.title }}</h4>
+                            <li id = "pub-course-id-{{ course.id }}">
+                                <h4>{{ course.title }}</h4>
                                 <div class="video-wrapper" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 10px; background: #000;">
                                     <iframe 
                                         src="{{ course.replace_youtube_link }}" 
@@ -52,16 +75,16 @@
                                         referrerpolicy="strict-origin-when-cross-origin"
                                         allowfullscreen>
                                     </iframe>
-                                    <p>
-                                        <a href="{{ course.video_url }}" target="_blank">
-                                            Watch on YouTube
-                                        </a>
-                                    </p>
                                 </div>
+                                <button
+                                onclick = "unsaveCourse(this, {{ course.id }})"
+                                data-url = "{% url 'users:unsave_course' course_id=course.id %}"
+                                style="background-color: #ff4757; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                                🗑️ Delete Course
+                                </button>
                                 <p>{{ course.description }}</p>
                                 <p><i>{{ course.created_at }}</i></p>
                             </li>
-
                         {% endfor %}
                     </ul>
                 {% else %}
@@ -79,4 +102,50 @@
         </form>
     </div>
 
+    <script>
+        function unsaveCourse(button, courseId) {
+            const url = button.getAttribute('data-url');
+            const isStudent = {{ profile_user.is_student|yesno:"true,false" }};
+            const actionWord = isStudent ? 'unsave' : 'delete';
+
+            if(!confirm(`Are you sure you want to ${actionWord} this course?`)) {
+                return;
+            }
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                let list;
+                let courseElement;
+                if (isStudent) {
+                    list = document.getElementById('saved-courses-list');
+                    courseElement = document.getElementById('std-course-id-' + courseId);
+                } else {
+                    list = document.getElementById('published-courses-list');
+                    courseElement = document.getElementById('pub-course-id-' + courseId);
+                }
+                if(data.status === 'success') {
+                    courseElement.style.transition = 'opacity 0.5s ease-out';
+                    courseElement.style.opacity = 0;
+                    
+                    setTimeout(() => {
+                        courseElement.remove();
+                        
+                        if (list && list.children.length === 0) {
+                            location.reload(); // Reload to show the "No saved courses" text
+                        }
+                    }, 500);
+                } else {
+                    alert(`Error ${actionWord}ing course.`);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
 {% endblock %}

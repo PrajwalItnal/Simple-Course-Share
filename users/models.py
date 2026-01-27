@@ -8,6 +8,7 @@ class Profile(models.Model):
     bio = models.CharField(max_length = 500, blank = True)
     is_student = models.BooleanField(default = True)
     is_publisher = models.BooleanField(default = False)
+    saved_courses = models.ManyToManyField('Courses', blank = True, related_name = 'saved_by_students')
 
     def __str__(self):
         return f"{self.user.username} - {'Publisher' if self.is_publisher else 'Student'}"

@@ -1,22 +1,118 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Upload Courses{% endblock %}
+{% block title %}Upload Course{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/upload.css' %}">
+{% endblock %}
 
 {% block content %}
-<header><a href="{% url 'users:profile' username=user.username %}">Back to Profile</a></header>
-    <div class="upload-container">
-        <h1>Upload a New Course</h1>
-        <form method="post" enctype="multipart/form-data">
+<div class="upload-wrapper">
+    <a href="{% url 'users:profile' username=user.username %}" class="back-link">
+        ← Back to Profile
+    </a>
+
+    <div class="upload-box">
+        <h1 class="upload-title">🎬 Share Your Knowledge</h1>
+        <p class="upload-subtitle">Create and upload a new course for our learning community</p>
+
+        <form method="post" enctype="multipart/form-data" class="upload-form">
             {% csrf_token %}
-            <label>Course Title:</label>
-            <input type="text" name="title" class="form-control" required>
 
-            <label>Description:</label>
-            <textarea name="description" class="form-control" required></textarea>
+            <!-- Error Messages -->
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <p class="error-text">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-            <label>YouTube Link:</label>
-            <input type="url" name="video_url" class="form-control" required>
-            <button type="submit" class="btn-upload">Upload Course</button>
+            <!-- Course Title Field -->
+            <div class="form-group">
+                <label for="id_title" class="form-label">
+                    Course Title <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    name="title" 
+                    id="id_title"
+                    class="form-input"
+                    placeholder="Enter an engaging course title"
+                    required>
+                {% if form.title.errors %}
+                    <div class="field-error">
+                        {% for error in form.title.errors %}
+                            <p class="error-text">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="help-text">Make it clear, concise, and descriptive</small>
+            </div>
+
+            <!-- Description Field -->
+            <div class="form-group">
+                <label for="id_description" class="form-label">
+                    Description <span class="required">*</span>
+                </label>
+                <textarea 
+                    name="description" 
+                    id="id_description"
+                    class="form-input form-textarea"
+                    placeholder="Describe what students will learn from this course..."
+                    rows="5"
+                    required></textarea>
+                {% if form.description.errors %}
+                    <div class="field-error">
+                        {% for error in form.description.errors %}
+                            <p class="error-text">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="help-text">Include key topics and learning outcomes</small>
+            </div>
+
+            <!-- YouTube Link Field -->
+            <div class="form-group">
+                <label for="id_video_url" class="form-label">
+                    YouTube Link <span class="required">*</span>
+                </label>
+                <div class="input-with-icon">
+                    <span class="input-icon">🎥</span>
+                    <input 
+                        type="url" 
+                        name="video_url" 
+                        id="id_video_url"
+                        class="form-input"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        required>
+                </div>
+                {% if form.video_url.errors %}
+                    <div class="field-error">
+                        {% for error in form.video_url.errors %}
+                            <p class="error-text">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <small class="help-text">Paste the full YouTube video URL</small>
+            </div>
+
+            <button type="submit" class="btn btn-submit">
+                <span class="btn-icon">📤</span>
+                <span class="btn-text">Upload Course</span>
+            </button>
+
+            <div class="info-box">
+                <h4 class="info-title">📋 Before you upload:</h4>
+                <ul class="info-list">
+                    <li>Make sure your YouTube link is publicly accessible</li>
+                    <li>Write a clear and descriptive title</li>
+                    <li>Provide detailed course description</li>
+                    <li>Ensure the video quality is good</li>
+                </ul>
+            </div>
         </form>
     </div>
+</div>
 {% endblock %}

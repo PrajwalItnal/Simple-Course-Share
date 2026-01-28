@@ -4,14 +4,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        {% block title %}E-Learning Platform{% endblock %}
-    </title>
+    <title>{% block title %}LearnTube Hub - E-Learning Platform{% endblock %}</title>
+    
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-    {% block content %}
-
+    {% block extra_css %}
     {% endblock %}
+</head>
+<body class="page-body">
+
+    <header id="main-header" class="header-wrapper">
+        <nav class="navbar navbar-main">
+            <div class="navbar-container">
+                <div class="logo logo-primary">LearnTube Hub 📚▶️</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link">Courses</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main id="content-container" class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer id="main-footer" class="footer-wrapper">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">LearnTube Hub</h3>
+                <p class="footer-text">&copy; 2026 LearnTube Hub. All rights reserved.</p>
+            </div>
+            <div class="footer-section">
+                <ul class="footer-links">
+                    <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                    <li><a href="#" class="footer-link">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>

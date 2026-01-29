@@ -207,7 +207,12 @@ This project is licensed under the **MIT License**.
 
 ---
 
-* **Author:** Prajwal Itnal
-* **GitHub:** [@PrajwalItnal](https://github.com/PrajwalItnal)
-* **LinkedIn:** [prajwal-itnal](https://www.linkedin.com/in/prajwal-itnal/)
-* **Email:** [prajwalitnal20@gmail.com](mailto:prajwalitnal20@gmail.com)
+## 👤 Contact
+
+**Prajwal Itnal** *Computer Applications Student | Data Enthusiast*
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/prajwal-itnal/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/PrajwalItnal))
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:prajwalitnal20@gmail.com)
+
+---

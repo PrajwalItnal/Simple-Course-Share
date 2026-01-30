@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .forms import CustomSignupForm
+from .forms import CustomSignupForm, CourseForm
 from .models import Profile, Courses
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
@@ -77,23 +77,21 @@ def logout_view(request):
 
 def upload_course(request):
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        video_url = request.POST.get('video_url')
-        
-        if Courses.objects.filter(video_url = video_url, publisher = request.user.profile).exists():
-            messages.error(request, "You have already uploaded a course with this video URL.")
-            return redirect('users:profile', username=request.user.username)
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            video_url = form.cleaned_data['video_url']
+            new_course = form.save(commit=False)
+            new_course.publisher = request.user.profile
+            if Courses.objects.filter(video_url = video_url, publisher = request.user.profile).exists():
+                messages.error(request, "You have already uploaded a course with this video URL.")
+                return redirect('users:profile', username=request.user.username)
+            new_course.save()
 
-        new_course = Courses.objects.create(
-            title = title,
-            description = description,
-            publisher =  request.user.profile,
-            video_url = video_url
-        )
-        messages.success(request, "Course uploaded successfully!")
-        return redirect('users:profile', username=request.user.username)
-    return render(request, 'users/upload_courses.html')
+            messages.success(request, "Course uploaded successfully!")
+            return redirect('users:profile', username=request.user.username)
+    else:
+        form = CourseForm()
+        return render(request, 'users/upload_courses.html', {'form': form})
 
 def course_list(request, username):
     courses = Courses.objects.all().order_by('-created_at')
